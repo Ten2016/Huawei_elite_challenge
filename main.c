@@ -1,9 +1,15 @@
 #include <fcntl.h> 
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include <stdio.h>
+/*
+
+Huawei elite challenge
+
+date:   20200404
+version:1.0
+by:     xyTen
+ */
 
 
 typedef char bool; 
@@ -12,11 +18,16 @@ typedef char bool;
 
 #define IDSIZE      12
 
+
 #define STDOUT      1
 #define STDERR      2
 #define MAXBUF      10000000
 #define MAXSETVEC   1000000
 #define MAXPRIM     999943
+
+
+char *datafile = "/home/jialu/Desktop/Huawei/test_data.txt";
+char *ansfile  = "00";
 
 
 //set struct
@@ -59,12 +70,10 @@ int main(){
 
     //data read
     int fd;
-    fd = open("/home/jialu/Desktop/Huawei/test_data.txt", O_RDONLY, 0666);
+    fd = open(datafile, O_RDONLY, 0666);
     char *buf = (char*)malloc(MAXBUF);
     unsigned cnt = read(fd, buf, MAXBUF);
     buf[cnt]='\0';
-
-    printf("%d\n", cnt);
 
     //load data to set 
     if(load_data_to_set(set, buf)==FALSE){
@@ -95,6 +104,10 @@ int main(){
 }
 
 
+
+
+// all function
+
 void set_init(Set *set){
     for(int i=0; i<MAXSETVEC; ++i)
         set->set_vec[i] = NULL;
@@ -110,7 +123,7 @@ pHashNode set_add(Set *set, const char *id){
         p = (pHashNode)malloc(sizeof(HashNode));
         p->circle = NULL;
         p->next = NULL;
-        set->vec[sum] = p;
+        set->set_vec[sum] = p;
     }
     while(p->next){
         p = p->next;
@@ -163,26 +176,18 @@ bool load_data_to_set(Set *set, char *buf){
         buff++;
         pHashNode p = set_add(set, id1);
         pHashNode q = set_add(set, id2);
-        pHashNode s = p->circle;
+        pCircleNode s = p->circle;
         if(s==NULL){
-            if(p==NULL){
-                p = (pHashNode)malloc(sizeof(HashNode));
-                p->circle = NULL;
-                p->next = NULL;
-                set->vec[sum] = p;
-            }
-            while(p->next){
-                p = p->next;
-                if(str_equ(p->id, id)==TRUE)
-                    return p;
-            }
-            pHashNode q = (pHashNode)malloc(sizeof(HashNode));
-            str_cpy(q->id, id);
-            q->next = NULL;
-            q->circle = NULL;
-            p->next = q;
-            return q;            
+            s = (pCircleNode)malloc(sizeof(CircleNode));
+            s->next = NULL;
+            p->circle = s;
         }
+        while(s->next)
+            s = s->next;
+        pCircleNode t = (pCircleNode)malloc(sizeof(CircleNode));
+        str_cpy(t->id, q->id);
+        t->next = NULL;
+        s->next = t;
     }
 
 
